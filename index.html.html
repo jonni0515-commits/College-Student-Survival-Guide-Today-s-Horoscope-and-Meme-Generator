@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大學生求生秘笈：今日運勢與迷因產生器</title>
+    <!-- 引入 Tailwind CSS CDN 打造極簡現代風 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- 引入 Google Fonts (Inter & 圓體風格) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between items-center py-10 px-4">
+
+    <!-- 主標題區 -->
+    <header class="text-center max-w-xl mb-8">
+        <span class="bg-indigo-100 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">🎓 大學生生存指南</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mt-3 mb-2 text-slate-900 tracking-tight">今日大學生運勢產生器</h1>
+        <p class="text-slate-500 text-sm sm:text-base">今天又是想休學的一天嗎？輸入你的名字，測驗你今天的校園生存指數！</p>
+    </header>
+
+    <!-- 互動主卡片 -->
+    <main class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 p-6 sm:p-8 transition-all duration-300">
+        
+        <!-- 輸入區 -->
+        <div id="input-section">
+            <label for="username" class="block text-sm font-medium text-slate-700 mb-2">請輸入你的大名或系級：</label>
+            <input type="text" id="username" placeholder="例如：資管系小明、不想早八的邊緣人" 
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-700 mb-5 transition">
+            
+            <button onclick="drawFortune()" 
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer flex items-center justify-center space-x-2">
+                <span>🔮 抽取今日運勢</span>
+            </button>
+        </div>
+
+        <!-- 結果展示區 (預設隱藏) -->
+        <div id="result-section" class="hidden opacity-0 transition-opacity duration-500">
+            <div class="text-center pb-4 border-b border-slate-100 mb-5">
+                <span id="result-user-tag" class="text-xs text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full"></span>
+                <div id="fortune-level" class="text-4xl font-black mt-3 mb-1 tracking-wider"></div>
+                <div id="fortune-title" class="text-sm font-medium text-indigo-600"></div>
+            </div>
+
+            <!-- 迷因圖區 -->
+            <div class="mb-5 overflow-hidden rounded-xl bg-slate-100 border border-slate-200 aspect-video flex items-center justify-center relative">
+                <img id="meme-image" src="" alt="今日迷因" class="w-full h-full object-cover">
+            </div>
+
+            <!-- 內容細節 -->
+            <div class="space-y-3 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm">
+                <div class="flex items-start">
+                    <span class="font-bold text-slate-700 w-20 shrink-0">💡 今日幹話：</span>
+                    <p id="fortune-quote" class="text-slate-600 italic"></p>
+                </div>
+                <div class="flex items-center">
+                    <span class="font-bold text-slate-700 w-20 shrink-0">✨ 開運小物：</span>
+                    <span id="fortune-item" class="text-indigo-600 font-medium"></span>
+                </div>
+            </div>
+
+            <button onclick="resetDraw()" 
+                class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-3 px-6 rounded-xl transition-all duration-200 cursor-pointer">
+                🔄 再抽一次運勢
+            </button>
+        </div>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="mt-12 text-center text-xs text-slate-400">
+        <p>© 2026 大學生求生秘笈. 由 Vibe Coding 協助打造 🚀</p>
+    </footer>
+
+    <!-- JavaScript 邏輯 -->
+    <script>
+        // 大學生運勢資料庫
+        const fortunePool = [
+            {
+                level: "🔥 大吉",
+                title: "教授今天心情好，點名直接跳過你！",
+                quote: "「只要我不去上課，早八就傷害不到我。」",
+                item: "一杯全糖珍奶（加珍珠加到飽）",
+                image: "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                level: "✨ 中吉",
+                title: "期末分組意外抱到神大腿！",
+                quote: "「躺平不是不努力，是在為當巨型米蟲做準備。」",
+                item: "組長同學的無限感恩",
+                image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                level: "⚡ 小吉",
+                title: "走到福利社剛好搶到最後一個御飯糰",
+                quote: "「雖然很累，但想到明天還是要上課，就更累了。」",
+                item: "超商茶葉蛋的精華滷汁",
+                image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                level: "💧 凶",
+                title: "出門才發現今天停修期限已過",
+                quote: "「人生就像期末考，會的不寫，寫的不會。」",
+                item: "教授的寬容眼神（但沒用）",
+                image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                level: "💀 大凶",
+                title: "早八鬧鐘沒響，到教室剛好考完期中考",
+                quote: "「只要我夠混，延畢就追不上我。」",
+                item: "一張寫著重修費用的繳費單",
+                image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80"
+            }
+        ];
+
+        function drawFortune() {
+            const inputVal = document.getElementById("username").value.trim();
+            const userName = inputVal === "" ? "無名邊緣人" : inputVal;
+
+            // 隨機抽選一筆運勢
+            const randomData = fortunePool[Math.floor(Math.random() * fortunePool.length)];
+
+            // 填入資料
+            document.getElementById("result-user-tag").innerText = `✨ 測驗者：${userName}`;
+            document.getElementById("fortune-level").innerText = randomData.level;
+            document.getElementById("fortune-title").innerText = randomData.title;
+            document.getElementById("meme-image").src = randomData.image;
+            document.getElementById("fortune-quote").innerText = randomData.quote;
+            document.getElementById("fortune-item").innerText = randomData.item;
+
+            // 切換畫面區塊
+            const inputSection = document.getElementById("input-section");
+            const resultSection = document.getElementById("result-section");
+
+            inputSection.classList.add("hidden");
+            resultSection.classList.remove("hidden");
+            
+            // 觸發淡入動畫
+            setTimeout(() => {
+                resultSection.classList.remove("opacity-0");
+            }, 50);
+        }
+
+        function resetDraw() {
+            const inputSection = document.getElementById("input-section");
+            const resultSection = document.getElementById("result-section");
+
+            resultSection.classList.add("opacity-0");
+            setTimeout(() => {
+                resultSection.classList.add("hidden");
+                inputSection.classList.remove("hidden");
+                document.getElementById("username").value = "";
+            }, 300);
+        }
+    </script>
+</body>
+</html>
